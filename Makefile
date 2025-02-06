@@ -1,5 +1,5 @@
 CC=gcc
-FILES=cipher.c
+FILES=main.c
 OUT_EXE = cipher
 build: $(FILES)
 	$(CC) -o $(OUT_EXE) $(FILES)
