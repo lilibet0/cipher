@@ -1,14 +1,125 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
 
 void encrypt(FILE *input_file, FILE *output_file, char key[])
 {
-    printf("encrypting!\n");
+    bool complete = false;
+    char block[16];
+    char output[16];
+    char ch;
+
+    while (!complete)
+    {
+        // Get block
+        memset(block, (char)129, 16);
+        for (int i = 0; i < 16; i++)
+        {
+            if ((ch = fgetc(input_file)) != EOF)
+            {
+                block[i] = ch;
+            }
+            else
+            {
+                complete = true;
+            }
+        }
+
+        // XOR in a byte-wise manner
+        for (int i = 0; i < 16; i++)
+        {
+            output[i] = (char)(key[i]) ^ (block[i]);
+        }
+
+        // Swap bytes
+        int start = 0;
+        int end = 15;
+        int current_byte = 0;
+
+        while (start != end)
+        {
+            current_byte = current_byte % 16;
+
+            if ((key[current_byte] % 2) == 1)
+            {
+                // Swap bytes in block
+                ch = output[start];
+                output[start] = output[end];
+                output[end] = ch;
+
+                end--;
+            }
+            start++;
+        }
+
+        for (int i = 0; i < 16; i++)
+        {
+            fprintf(output_file, "%c", output[i]);
+        }
+    }
 }
 
 void decrypt(FILE *input_file, FILE *output_file, char key[])
 {
-    printf("decrypting!\n");
+    bool complete = false;
+    char block[16];
+    char output[16];
+    char ch;
+
+    while (!complete)
+    {
+        // Get block
+        memset(block, (char)129, 16);
+        for (int i = 0; i < 16; i++)
+        {
+            if ((ch = fgetc(input_file)) != EOF)
+            {
+                block[i] = ch;
+            }
+            else
+            {
+                complete = true;
+            }
+        }
+
+        // Swap bytes
+        int start = 0;
+        int end = 15;
+        int current_byte = 0;
+
+        while (start != end)
+        {
+            current_byte = current_byte % 16;
+
+            if ((key[current_byte] % 2) == 1)
+            {
+                // Swap bytes in block
+                ch = output[start];
+                output[start] = output[end];
+                output[end] = ch;
+
+                end--;
+            }
+            start++;
+        }
+
+        // XOR in a byte-wise manner
+        for (int i = 0; i < 16; i++)
+        {
+            output[i] = (char)(key[i]) ^ (block[i]);
+        }
+
+        for (int i = 0; i < 16; i++)
+        {
+            // Remove any padding
+            // TODO: FIX???
+            if (output[i] != (char)129)
+            {
+                fprintf(output_file, "%c", output[i]);
+            }
+        }
+    }
 }
 
 void block_cipher(char *args[])
@@ -28,9 +139,13 @@ void block_cipher(char *args[])
         encrypt(input_file, output_file, key);
     }
 
-    else {
+    else
+    {
         decrypt(input_file, output_file, key);
     }
-    
+
+    fclose(input_file);
+    fclose(key_file);
+    fclose(output_file);
     exit(0);
 }

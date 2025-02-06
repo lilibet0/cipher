@@ -29,5 +29,8 @@ extern void stream_cipher(char *args[]) {
         current_key_index++;
     }
 
+    fclose(input_file);
+    fclose(key_file);
+    fclose(output_file);
     exit(0);
 }

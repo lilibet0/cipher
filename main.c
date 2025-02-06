@@ -4,7 +4,7 @@
 #include "block.h"
 #include "stream.h"
 
-void validate_arguments(int num_args, char *args[], FILE *input_file, FILE *key_file)
+void validate_arguments(int num_args, char *args[])
 {
 // Ensure there are exactly 5 arguments
    if (num_args != 6)
@@ -21,22 +21,24 @@ void validate_arguments(int num_args, char *args[], FILE *input_file, FILE *key_
    }
 
    // Validate second argument (Input file)
-   input_file = fopen(args[2], "r");
+   FILE *input_file = fopen(args[2], "r");
 
    if (input_file == NULL)
    {
       fprintf(stderr, "Input File Does Not Exist\n");
       exit(1);
    }
+      fclose(input_file);
 
    // Validate fourth argument (Key file)
-   key_file = fopen(args[4], "r");
+   FILE *key_file = fopen(args[4], "r");
 
    if (key_file == NULL)
    {
       fprintf(stderr, "Key File Does Not Exist\n");
       exit(1);
    }
+   fclose(key_file);
 
    // Validate fifth argument (Mode of operation)
    if ((*args[5] != 'E') && (*args[5] != 'D'))
@@ -48,11 +50,7 @@ void validate_arguments(int num_args, char *args[], FILE *input_file, FILE *key_
 
 int main(int argc, char *argv[])
 {
-   FILE *input_file, *output_file, *key_file;
-   output_file = fopen(argv[3], "w");
-
-   // Validate arguments
-   validate_arguments(argc, argv, input_file, output_file);
+   validate_arguments(argc, argv);
 
    if(*argv[1] == 'B') {
       block_cipher(argv);
