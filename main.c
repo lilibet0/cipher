@@ -1,6 +1,8 @@
-#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+#include "block.h"
+#include "stream.h"
 
 void validate_arguments(int num_args, char *args[], FILE *input_file, FILE *key_file)
 {
@@ -51,8 +53,14 @@ int main(int argc, char *argv[])
 
    // Validate arguments
    validate_arguments(argc, argv, input_file, output_file);
-   
-   printf("true\n");
+
+   if(*argv[1] == 'B') {
+      block_cipher(argv);
+   }
+
+   else {
+      stream_cipher(argv);
+   }
 
    exit(0);
 }
