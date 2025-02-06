@@ -1,6 +1,6 @@
 CC=gcc
 FILES=cipher.c
-OUT_EXE = Driver
+OUT_EXE = cipher
 build: $(FILES)
 	$(CC) -o $(OUT_EXE) $(FILES)
 clean:
