@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-void encrypt(FILE *input_file, FILE *output_file, char key[])
+void encrypt(FILE *input_file, FILE *output_file, char key[16])
 {
     bool complete = false;
     char block[16];
@@ -37,7 +37,7 @@ void encrypt(FILE *input_file, FILE *output_file, char key[])
         int end = 15;
         int current_byte = 0;
 
-        while (start != end)
+        while (start < end)
         {
             current_byte = current_byte % 16;
 
@@ -51,6 +51,7 @@ void encrypt(FILE *input_file, FILE *output_file, char key[])
                 end--;
             }
             start++;
+            current_byte++;
         }
 
         for (int i = 0; i < 16; i++)
@@ -60,7 +61,7 @@ void encrypt(FILE *input_file, FILE *output_file, char key[])
     }
 }
 
-void decrypt(FILE *input_file, FILE *output_file, char key[])
+void decrypt(FILE *input_file, FILE *output_file, char key[16])
 {
     bool complete = false;
     char block[16];
@@ -71,6 +72,7 @@ void decrypt(FILE *input_file, FILE *output_file, char key[])
     {
         // Get block
         memset(block, (char)129, 16);
+        
         for (int i = 0; i < 16; i++)
         {
             if ((ch = fgetc(input_file)) != EOF)
@@ -88,35 +90,40 @@ void decrypt(FILE *input_file, FILE *output_file, char key[])
         int end = 15;
         int current_byte = 0;
 
-        while (start != end)
+        while (start < end)
         {
             current_byte = current_byte % 16;
 
             if ((key[current_byte] % 2) == 1)
             {
                 // Swap bytes in block
-                ch = output[start];
-                output[start] = output[end];
-                output[end] = ch;
+                ch = block[start];
+                block[start] = block[end];
+                block[end] = ch;
 
                 end--;
             }
             start++;
+            current_byte++;
         }
 
         // XOR in a byte-wise manner
         for (int i = 0; i < 16; i++)
         {
-            output[i] = (char)(key[i]) ^ (block[i]);
+            if(output[i] != (char)129) {
+                output[i] = (char)(key[i]) ^ (block[i]);
+            }
         }
 
         for (int i = 0; i < 16; i++)
         {
             // Remove any padding
-            // TODO: FIX???
             if (output[i] != (char)129)
             {
                 fprintf(output_file, "%c", output[i]);
+            }
+            else {
+                return;
             }
         }
     }
