@@ -6,7 +6,7 @@
 
 void validate_arguments(int num_args, char *args[])
 {
-// Ensure there are exactly 5 arguments
+   // Ensure there are exactly 5 arguments
    if (num_args != 6)
    {
       fprintf(stderr, "Invalid Argument Number\n");
@@ -19,16 +19,6 @@ void validate_arguments(int num_args, char *args[])
       fprintf(stderr, "Invalid Function Type\n");
       exit(1);
    }
-
-   // Validate second argument (Input file)
-   FILE *input_file = fopen(args[2], "r");
-
-   if (input_file == NULL)
-   {
-      fprintf(stderr, "Input File Does Not Exist\n");
-      exit(1);
-   }
-      fclose(input_file);
 
    // Validate fourth argument (Key file)
    FILE *key_file = fopen(args[4], "r");
@@ -46,17 +36,37 @@ void validate_arguments(int num_args, char *args[])
       fprintf(stderr, "Invalid Mode Type\n");
       exit(1);
    }
+
+   // Validate second argument (Input file)
+   FILE *input_file = fopen(args[2], "r");
+
+   if (input_file == NULL)
+   {
+      fprintf(stderr, "Input File Does Not Exist\n");
+      exit(1);
+   }
+
+   char ch = fgetc(input_file);
+   if(ch == EOF) {
+      FILE *output_file = fopen(args[3], "w");
+      fclose(input_file);
+      fclose(output_file);
+      exit(0);
+   }
+      fclose(input_file);
 }
 
 int main(int argc, char *argv[])
 {
    validate_arguments(argc, argv);
 
-   if(*argv[1] == 'B') {
+   if (*argv[1] == 'B')
+   {
       block_cipher(argv);
    }
 
-   else {
+   else
+   {
       stream_cipher(argv);
    }
 
